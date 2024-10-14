@@ -1,11 +1,9 @@
-# app.py
-scientific calculator
 import numpy as np
 import matplotlib.pyplot as plt
 import sympy as sp
 import streamlit as st
-from scipy import stats
 
+# Function for the scientific calculator
 def scientific_calculator():
     st.title("Scientific Calculator")
 
@@ -16,11 +14,12 @@ def scientific_calculator():
         "Hyperbolic Functions"
     ])
 
+    # Basic arithmetic operations
     if operation in ["Addition", "Subtraction", "Multiplication", "Division"]:
         num1 = st.number_input("Enter first number", value=0.0)
         num2 = st.number_input("Enter second number", value=0.0)
-                               
-                                  if operation == "Addition":
+
+        if operation == "Addition":
             result = num1 + num2
         elif operation == "Subtraction":
             result = num1 - num2
@@ -28,39 +27,54 @@ def scientific_calculator():
             result = num1 * num2
         elif operation == "Division":
             result = num1 / num2 if num2 != 0 else "Error! Division by zero."
-
+        
         st.write("Result:", result)
 
+    # Square Root
     elif operation == "Square Root":
         num = st.number_input("Enter a number", value=0.0)
-        result = np.sqrt(num)
+        if num >= 0:
+            result = np.sqrt(num)
+        else:
+            result = "Error! Cannot compute square root of a negative number."
         st.write("Result:", result)
 
+    # Power function
     elif operation == "Power":
         base = st.number_input("Enter base", value=0.0)
         exponent = st.number_input("Enter exponent", value=0.0)
         result = np.power(base, exponent)
         st.write("Result:", result)
 
+    # Logarithm
     elif operation == "Logarithm":
-        num = st.number_input("Enter a number (positive)", value=0.0)
+        num = st.number_input("Enter a number", value=0.0)
         base = st.selectbox("Choose a base", ["Natural Log (e)", "Base 10"])
-        if base == "Natural Log (e)":
-            result = np.log(num) if num > 0 else "Error! Input must be positive."
+        if num > 0:
+            if base == "Natural Log (e)":
+                result = np.log(num)
+            else:
+                result = np.log10(num)
         else:
-            result = np.log10(num) if num > 0 else "Error! Input must be positive."
+            result = "Error! Logarithm input must be positive."
         st.write("Result:", result)
 
+    # Factorial
     elif operation == "Factorial":
         num = st.number_input("Enter a non-negative integer", value=0, step=1)
-        result = np.math.factorial(num)
+        if num >= 0:
+            result = np.math.factorial(int(num))
+        else:
+            result = "Error! Factorial of negative number is undefined."
         st.write("Result:", result)
 
+    # Exponential
     elif operation == "Exponential":
         num = st.number_input("Enter a number", value=0.0)
         result = np.exp(num)
         st.write("Result:", result)
 
+    # Trigonometric Functions
     elif operation == "Trigonometric Functions":
         angle = st.number_input("Enter angle in degrees", value=0.0)
         function = st.selectbox("Choose a function", ["Sine", "Cosine", "Tangent"])
@@ -71,22 +85,30 @@ def scientific_calculator():
             result = np.cos(np.radians(angle))
         elif function == "Tangent":
             result = np.tan(np.radians(angle))
-
+        
         st.write("Result:", result)
 
+    # Inverse Trigonometric Functions
     elif operation == "Inverse Trigonometric Functions":
         value = st.number_input("Enter value", value=0.0)
         function = st.selectbox("Choose a function", ["arcsin", "arccos", "arctan"])
         
         if function == "arcsin":
-            result = np.degrees(np.arcsin(value))
+            if -1 <= value <= 1:
+                result = np.degrees(np.arcsin(value))
+            else:
+                result = "Error! Input for arcsin must be between -1 and 1."
         elif function == "arccos":
-            result = np.degrees(np.arccos(value))
+            if -1 <= value <= 1:
+                result = np.degrees(np.arccos(value))
+            else:
+                result = "Error! Input for arccos must be between -1 and 1."
         elif function == "arctan":
             result = np.degrees(np.arctan(value))
 
         st.write("Result:", result)
 
+    # Hyperbolic Functions
     elif operation == "Hyperbolic Functions":
         angle = st.number_input("Enter angle in degrees", value=0.0)
         function = st.selectbox("Choose a function", ["sinh", "cosh", "tanh"])
@@ -100,17 +122,22 @@ def scientific_calculator():
 
         st.write("Result:", result)
 
+# Function for graphical calculator
 def graphical_calculator():
     st.title("Graphical Calculator")
     
     expression = st.text_input("Enter a function (e.g., x**2, sin(x)):")
     if expression:
         x = sp.symbols('x')
-        expr = sp.sympify(expression)
+        try:
+            expr = sp.sympify(expression)
+        except (sp.SympifyError, SyntaxError):
+            st.write("Error: Invalid expression!")
+            return
         
         # Generate values
         x_vals = np.linspace(-10, 10, 400)
-        y_vals = [expr.subs(x, val) for val in x_vals]
+        y_vals = [float(expr.subs(x, val)) for val in x_vals]
 
         # Plotting
         plt.figure(figsize=(10, 5))
@@ -124,6 +151,7 @@ def graphical_calculator():
         plt.legend()
         st.pyplot(plt)
 
+# Main function
 def main():
     st.sidebar.title("Select Calculator")
     calculator_type = st.sidebar.radio("Choose:", ["Scientific Calculator", "Graphical Calculator"])
@@ -133,5 +161,9 @@ def main():
     else:
         graphical_calculator()
 
-if _name_ == "_main_":
+    # Footer
+    st.markdown("<hr>", unsafe_allow_html=True)
+    st.markdown("<p style='text-align: center;'>Made by Nayab Shakeel</p>", unsafe_allow_html=True)
+
+if __name__ == "__main__":
     main()
